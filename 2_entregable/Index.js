@@ -56,7 +56,7 @@ class ProductManager {
         try {
             await this.getProduct()
             let respuesta = this.products.find((producto) => producto.id === id);
-            (respuesta === undefined) ? respuesta = "no se encuentra el producto" : console.log("producto encontrado: ",respuesta);
+            (respuesta === undefined) ? respuesta = "no se encuentra el producto" : console.log("producto encontrado: ", respuesta);
         } catch (error) {
             console.log(error)
             return
@@ -68,7 +68,7 @@ class ProductManager {
             await this.getProduct()
             const indice = this.products.findIndex(aux => aux.id === id)
             if (indice === -1) {
-                console.log ("no hay producto a actualizar")
+                console.log("no hay producto a actualizar")
                 return
             }
             const producto = this.products[indice]
@@ -76,7 +76,7 @@ class ProductManager {
             this.products[indice] = producto
             await this.salveProduct()
             console.log("Producto actualizado")
-            console.log(await this.getProduct()) 
+            console.log(await this.getProduct())
         }
         catch (error) {
             console.log(error)
@@ -87,8 +87,16 @@ class ProductManager {
     async deleteProduct(id) {
         try {
             await this.getProduct()
-            this.products = this.products.filter((producto) => producto.id !== id)
-            await this.salveProduct()
+            const aux = this.products.filter((producto) => producto.id !== id)
+
+            if (aux == this.products){
+                console.log("No hay producto a eliminar")
+            }
+            else {
+                this.products = aux
+                await this.salveProduct()
+                console.log("producto eliminado")
+            }
         } catch (error) {
             console.log(error)
             return
@@ -104,5 +112,6 @@ agenda.addProduct("tablet", "tablet samsung", 100000, "Sin imagen", "a5", 20)
 agenda.addProduct("PC", "NPC gamer", 200000, "Sin imagen", "a167", 16)
 agenda.getProductsById(2)
 agenda.addProduct("teclado", "teclado mecanico", 40000, "Sin imagen", "a166", 6)
-agenda.updateProduct(2, "thumbnail", "con imagen en algun lado")
+agenda.updateProduct(2, "thumbnail", "con imagen en algun lado") 
+agenda.deleteProduct(10)
 
