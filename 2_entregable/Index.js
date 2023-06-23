@@ -5,7 +5,7 @@ const fs = require('fs');
 class ProductManager {
     constructor(path) {
         this.path = path
-        this.id = 1;
+        this.id = 0;
         this.products = []
     }
 
@@ -15,14 +15,11 @@ class ProductManager {
             if (json === "") return "la lista esta vacia"
             else {
                 this.products = JSON.parse(json)
-                this.id = this.products[this.products.length - 1].id
             }
-
             return this.products
         } catch (e) {
             return this
         }
-
     }
 
     async salveProduct() {
@@ -30,11 +27,9 @@ class ProductManager {
             const json = JSON.stringify(this.products, null, 2)
             await fs.promises.writeFile(this.path, json)
             return "se guardo el producto"
-
         } catch (error) {
             return error
         }
-
     }
 
     async addProduct(title, description, price, thumbnail, code, stock) {
@@ -42,10 +37,10 @@ class ProductManager {
             await this.getProduct()
             if (this.products.find((aux) => aux.code === code)) return console.log("el producto ya esta cargado");
             else {
-                this.products.push({ id: this.id++, title: title, description: description, price: price, thumbnail: thumbnail, code: code, stock: stock })
+                this.id++
+                this.products.push({ id: this.id, title: title, description: description, price: price, thumbnail: thumbnail, code: code, stock: stock })
             }
             console.log(await this.salveProduct())
-
         } catch (error) {
             console.log(error)
             return
@@ -56,7 +51,7 @@ class ProductManager {
         try {
             await this.getProduct()
             let respuesta = this.products.find((producto) => producto.id === id);
-            (respuesta === undefined) ? respuesta = "no se encuentra el producto" : console.log("producto encontrado: ", respuesta);
+            (respuesta === undefined) ? console.log("no se encuentra el producto") : console.log("producto encontrado: ", respuesta);
         } catch (error) {
             console.log(error)
             return
@@ -75,8 +70,7 @@ class ProductManager {
             producto[campoActualizar] = cambio
             this.products[indice] = producto
             await this.salveProduct()
-            console.log("Producto actualizado")
-            console.log(await this.getProduct())
+            console.log("Producto actualizado:", producto)
         }
         catch (error) {
             console.log(error)
@@ -88,8 +82,7 @@ class ProductManager {
         try {
             await this.getProduct()
             const aux = this.products.filter((producto) => producto.id !== id)
-
-            if (aux == this.products){
+            if (JSON.stringify(aux) === JSON.stringify(this.products)) {
                 console.log("No hay producto a eliminar")
             }
             else {
@@ -100,18 +93,23 @@ class ProductManager {
         } catch (error) {
             console.log(error)
             return
-
         }
-
     }
 }
+
+
+
+async function prueva(aux) {
+    await aux.addProduct("tablet", "tablet samsung", 100000, "Sin imagen", "a5", 20)
+    await aux.addProduct("PC", "NPC gamer", 200000, "Sin imagen", "a167", 16)
+    await aux.getProductsById(2)
+    await aux.addProduct("teclado", "teclado mecanico", 40000, "Sin imagen", "a166", 6)
+    await aux.updateProduct(2, "thumbnail", "con imagen en algun lado")
+    await aux.deleteProduct(1)
+    console.log("lista final: ", await aux.getProduct())
+}
+
 const agenda = new ProductManager('./Archivo.txt')
+prueva(agenda)
 
-
-agenda.addProduct("tablet", "tablet samsung", 100000, "Sin imagen", "a5", 20)
-agenda.addProduct("PC", "NPC gamer", 200000, "Sin imagen", "a167", 16)
-agenda.getProductsById(2)
-agenda.addProduct("teclado", "teclado mecanico", 40000, "Sin imagen", "a166", 6)
-agenda.updateProduct(2, "thumbnail", "con imagen en algun lado") 
-agenda.deleteProduct(10)
 
